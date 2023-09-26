@@ -1,3 +1,5 @@
+import pytest
+
 
 from main import BooksCollector
 
@@ -8,11 +10,10 @@ class TestBooksCollector:
         collector.add_new_book('Что делать, если ваш кот хочет вас убить')
         assert len(collector.get_books_genre()) == 2
 
-
     def test_add_new_book(self):
         collector = BooksCollector()
         collector.add_new_book('Kniga_1')
-        assert 'Kniga_1' in collector.books_genre
+        assert 'Kniga_1' in collector.get_books_genre()
 
     def test_get_book_genre(self):
         collector = BooksCollector()
@@ -40,14 +41,14 @@ class TestBooksCollector:
         collector = BooksCollector()
         collector.add_new_book("Kniga_6")
         collector.add_book_in_favorites("Kniga_6")
-        assert "Kniga_6" in collector.favorites
+        assert "Kniga_6" in collector.get_list_of_favorites_books()
 
     def test_delete_book_from_favorites(self):
         collector = BooksCollector()
         collector.add_new_book("Kniga_7")
         collector.add_book_in_favorites("Kniga_7")
         collector.delete_book_from_favorites("Kniga_7")
-        assert "Kniga_7" not in collector.favorites
+        assert "Kniga_7" not in collector.get_list_of_favorites_books()
 
     def test_get_list_of_favorites_books(self):
         collector = BooksCollector()
@@ -61,10 +62,23 @@ class TestBooksCollector:
         collector = BooksCollector()
         book_name = "A" * 41
         collector.add_new_book(book_name)
-        assert book_name not in collector.books_genre
+        assert book_name not in collector.get_books_genre()
 
     def test_add_new_book_only_once(self):
         collector = BooksCollector()
         collector.add_new_book("Kniga_10")
         collector.add_new_book("Kniga_10")
-        assert len(collector.books_genre) == 1
+        assert len(collector.get_books_genre()) == 1
+
+
+    @pytest.mark.parametrize("book_name, expected_result", [
+        ("Kniga_11", True),
+        ("A" * 40, True),
+        ("A" * 41, False),
+        ("", False)
+        ])
+    def test_add_new_book_with_different_lengths(self, book_name, expected_result):
+        collector = BooksCollector()
+        collector.add_new_book(book_name)
+        result = book_name in collector.get_books_genre()
+        assert result == expected_result
